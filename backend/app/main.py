@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
-from app.models import Fertigungsmaschine, Teilnehmer
-from app.routes import fertigungsmaschinen, teilnehmer
+from .routes import fertigungsmaschinen, teilnehmer
+from .models import Fertigungsmaschine  # Import the model
 import json
 from pathlib import Path
 
