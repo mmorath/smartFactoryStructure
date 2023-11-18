@@ -4,6 +4,11 @@ FROM python:3.9
 # Set the working directory in the container
 WORKDIR /usr/src
 
+# Install system dependencies
+RUN apt-get update && \
+    apt-get install -y tree && \
+    rm -rf /var/lib/apt/lists/*
+
 # Copy the current directory contents into the container at /usr/src/app
 COPY . .
 
