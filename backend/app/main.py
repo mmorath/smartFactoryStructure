@@ -1,3 +1,5 @@
+# Import the Config class
+from app.config.config import Config
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -10,15 +12,20 @@ import logging
 logger = logging.getLogger(__name__)
 
 # Create an instance of FastAPI
-app = FastAPI()
+app = FastAPI(
+    title=Config.FASTAPI_TITLE,           # Use configuration for title
+    version=Config.FASTAPI_VERSION,       # Use configuration for version
+    description=Config.FASTAPI_DESCRIPTION,  # Use configuration for description
+    debug=Config.FASTAPI_DEBUG            # Use configuration for debug mode
+)
 
 # Setup CORS middleware for handling cross-origin requests
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins
+    allow_origins=Config.ALLOWED_ORIGINS,  # Use configuration for allowed origins
     allow_credentials=True,
-    allow_methods=["*"],  # Allows all methods
-    allow_headers=["*"],  # Allows all headers
+    allow_methods=Config.ALLOWED_METHODS,  # Use configuration for allowed methods
+    allow_headers=["*"]                   # Allows all headers
 )
 
 # Include routers for Manufacturing Machines and Participants
@@ -32,6 +39,13 @@ app.include_router(
     prefix="/participants",
     tags=["participants"]
 )
+
+# Define an event handler for startup
+@app.on_event("startup")
+async def startup_event():
+    # Perform startup tasks here
+    # For example, create database tables
+    Base.metadata.create_all(bind=engine)
 
 # Define additional endpoint(s) if necessary
 @app.get("/example")

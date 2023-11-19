@@ -1,15 +1,12 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from config.config import Config  # Import the Config class
 
-# SQLALCHEMY_DATABASE_URL should be set to your database connection URL
-# For SQLite, it's typically like: 'sqlite:///./sql_app.db'
-SQLALCHEMY_DATABASE_URL = "sqlite:///./sql_app.db"
-
-# Create the SQLAlchemy engine
+# Create the SQLAlchemy engine using the database URL from the configuration
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, 
-    connect_args={"check_same_thread": False}  # Only needed for SQLite
+    Config.SQLALCHEMY_DATABASE_URL,
+    connect_args={"check_same_thread": Config.SQLALCHEMY_CHECK_SAME_THREAD}
 )
 
 # SessionLocal is an instance of sessionmaker, used to get database sessions
