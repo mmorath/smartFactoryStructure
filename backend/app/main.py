@@ -1,18 +1,18 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from typing import List
-from .models import Fertigungsmaschine  # Import the model
-from .routes import fertigungsmaschinen, teilnehmer
-import json
+from sqlalchemy.orm import Session
+from .database import get_db
+from .routes import manufacturing_machine as manufacturing_machine_router
+from .routes import participant as participant_router
 import logging
-from pathlib import Path
 
-# Configure logging for this module
+# Configure logging for the application
 logger = logging.getLogger(__name__)
 
+# Create an instance of FastAPI
 app = FastAPI()
 
-# Set up CORS middleware
+# Setup CORS middleware for handling cross-origin requests
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Allows all origins
@@ -21,49 +21,27 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
-# Include the routers from the fertigungsmaschinen and teilnehmer modules
-app.include_router(fertigungsmaschinen.router, prefix="/fertigungsmaschinen", tags=["fertigungsmaschinen"])
-app.include_router(teilnehmer.router, prefix="/teilnehmer", tags=["teilnehmer"])
+# Include routers for Manufacturing Machines and Participants
+app.include_router(
+    manufacturing_machine_router.router,
+    prefix="/manufacturing_machines",
+    tags=["manufacturing_machines"]
+)
+app.include_router(
+    participant_router.router,
+    prefix="/participants",
+    tags=["participants"]
+)
 
-# Path to the JSON file
-DATA_FILE = Path(__file__).parent / "data/fertigungsmaschinen.json"
-
-def read_fertigungsmaschinen_data():
-    """
-    Reads and returns the data from the Fertigungsmaschinen JSON file.
-    """
+# Define additional endpoint(s) if necessary
+@app.get("/example")
+async def example_endpoint(db: Session = Depends(get_db)):
     try:
-        with open(DATA_FILE, "r") as file:
-            return json.load(file)
+        # Example database operation
+        # result = db.query(...).all()
+        return {"message": "Example endpoint response"}
     except Exception as e:
-        logger.error(f"Error reading Fertigungsmaschinen data file: {e}")
-        raise
-
-@app.get("/fertigungsmaschinen", response_model=List[Fertigungsmaschine])
-async def get_all_fertigungsmaschinen():
-    """
-    Endpoint to retrieve a list of all Fertigungsmaschinen.
-    Returns a list of Fertigungsmaschinen as defined in the Fertigungsmaschine model.
-    """
-    try:
-        data = read_fertigungsmaschinen_data()
-        logger.info("Successfully retrieved Fertigungsmaschinen data.")
-        return data["fertigungsmaschinen"]
-    except Exception as e:
-        logger.error(f"Error retrieving Fertigungsmaschinen data: {e}")
+        logger.error(f"Error in example endpoint: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/fertigungsmaschinen-count")
-def get_fertigungsmaschinen_count():
-    """
-    Endpoint to get the count of all Fertigungsmaschinen.
-    Returns the total count of Fertigungsmaschinen.
-    """
-    try:
-        data = read_fertigungsmaschinen_data()
-        return {"count": len(data["fertigungsmaschinen"])}
-    except Exception as e:
-        logger.error(f"Error counting Fertigungsmaschinen: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-# Add any additional endpoint definitions here
+# Add any other configurations or event handlers if needed
