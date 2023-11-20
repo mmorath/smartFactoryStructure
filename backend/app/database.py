@@ -1,7 +1,7 @@
+from config.config import Config  # Import the Config class
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from config.config import Config  # Import the Config class
 
 # Create the SQLAlchemy engine using the database URL from the configuration
 engine = create_engine(
