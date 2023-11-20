@@ -1,8 +1,8 @@
 # Import the Config class
-from app.config.config import Config
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
+from .config.config import Config
 from .database import get_db
 from .routes import manufacturing_machine as manufacturing_machine_router
 from .routes import participant as participant_router
